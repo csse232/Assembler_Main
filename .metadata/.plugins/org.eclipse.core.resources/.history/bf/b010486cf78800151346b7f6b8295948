@@ -1,0 +1,37 @@
+relPrime: 
+in t0		
+addi t1 0 2		
+while:
+addi sp sp -3	
+sw t0 sp 0		
+sw t1 sp 1		
+sw ra sp 2		
+jal gcd			
+lw t0 sp 0		
+lw t1 sp 1		
+lw ra sp 2		
+addi sp sp 3
+addi t2 0 1		
+add t3 0 rv		
+add rv 0 t1		
+beq t3 t2 exit	
+addi t1 t1 1	
+j while			
+gcd:
+add rv 0 t1		
+bne t0 0 exit		
+while2:
+beq t1 0 while2exit	
+if:	
+slt t2 t0 t1		
+bne t2 0 else		
+sub t0 t0 t1		
+j while2		
+else: 
+sub t1 t1 t0		
+j while2		
+while2exit:
+add rv 0 t0		
+jr ra
+exit: 
+	

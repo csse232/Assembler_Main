@@ -1,0 +1,4 @@
+loop:
+addi t0 0 0
+addi t0 0 1
+j loop

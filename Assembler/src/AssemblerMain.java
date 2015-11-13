@@ -349,19 +349,14 @@ public class AssemblerMain {
 						// Converts imm into binary string
 						immStr = Integer.toBinaryString(Integer
 								.parseInt(immStr));
-
-						// Checks to make sure the imm is not too big
-						if (immStr.length() > 6) {
-							throw new Exception(
-									"The immediate inputed is too big at: "
-											+ pc);
-						}
+						
+						// Formats imm
+						immStr = String.format("%06d", immStr);
 
 						// Turns back into int
 						imm = Integer.parseInt(immStr);
 
-						// Formats imm
-						immStr = String.format("%06d", imm);
+						
 
 						// Write the instruction in binary form to the file
 						fileWriter.write(opCode + "_" + rs1 + "_" + rt1 + "_"
@@ -451,6 +446,7 @@ public class AssemblerMain {
 							if (key.equals(branchLabel)) {
 								labelPc = labels.get(key);
 								branchImm = labelPc - pc;
+								break;
 							}
 						}
 
@@ -463,12 +459,15 @@ public class AssemblerMain {
 						// Converts the branch immediate into a binary number
 						// takes into account signed numebrs
 						branchLabel = Integer.toBinaryString(branchImm);
+						
+						// Formats imm
+						branchLabel = String.format("%06d", branchLabel);
 
-						// Only grabs the last 6 bits so the instruction will be
-						// the
-						// correct size
-						branchLabel = branchLabel.substring(branchLabel
-								.length() - 6);
+//						// Only grabs the last 6 bits so the instruction will be
+//						// the
+//						// correct size
+//						branchLabel = branchLabel.substring(branchLabel
+//								.length() - 6);
 
 						// Write the instruction in binary form to the file
 						fileWriter.write(opCode + "_" + rs2 + "_" + rt2 + "_"
@@ -487,12 +486,18 @@ public class AssemblerMain {
 							if (key.equals(jumpLabel)) {
 								jumpPc = labels.get(key);
 								targetPc = jumpPc - pc;
+								break;
 							}
 						}
 
 						jumpLabel = Integer.toBinaryString(targetPc);
-						jumpLabel = jumpLabel
-								.substring(jumpLabel.length() - 12);
+						System.out.println(jumpLabel);
+						
+						// Formats imm
+						jumpLabel = String.format("%012d", jumpLabel);
+						
+//						jumpLabel = jumpLabel
+//								.substring(jumpLabel.length() - 12);
 
 						// Write the instruction in binary form to the file
 						fileWriter.write(opCode + "_" + jumpLabel + "\n");

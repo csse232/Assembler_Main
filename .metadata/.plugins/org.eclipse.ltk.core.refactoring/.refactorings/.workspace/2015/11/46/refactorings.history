@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete resource &apos;Euclidian Algorithm&apos;" deleteContents="false" description="Delete resource &apos;Euclidian Algorithm&apos;" element1="/Euclidian Algorithm" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1447374689392"/>
+</session>
