@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;jumpRs&apos; in &apos;AssemblerMain.main(...)&apos; to &apos;jrOutRs&apos;&#x0D;&#x0A;- Original project: &apos;Assembler&apos;&#x0D;&#x0A;- Original element: &apos;AssemblerMain.main(String[]).jumpRs&apos;&#x0D;&#x0A;- Renamed element: &apos;jumpRs&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename local variable &apos;jumpRs&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src&lt;{AssemblerMain.java[AssemblerMain~main~\[QString;@jumpRs!12296!12339!12303!12308!QString;!0!false" name="jrOutRs" references="true" stamp="1447649268729" version="1.0"/>
+</session>

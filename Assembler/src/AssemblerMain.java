@@ -45,6 +45,11 @@ public class AssemblerMain {
 
 			// File Writer
 			FileWriter fileWriter = new FileWriter("Output.txt");
+			
+			// To make sure labels are gotten and being mapped to correct pc
+			for(String key: labels.keySet()) {
+				System.out.println(key + ", " + labels.get(key) + "\n");
+			}
 
 			// Reads lines until there are no more lines to read
 			while ((line = bufferedReader.readLine()) != null) {
@@ -154,20 +159,18 @@ public class AssemblerMain {
 						opCode = "1011";
 						// Does not actually have a funk but is set to
 						// have one to reduce code
-						funk = "000";
 						flag = 4;
 						break;
 
 					// Input/Output
 					case "out":
 						opCode = "1100";
-						funk = "000";
 						flag = 4;
 						break;
 					case "in":
 						opCode = "1100";
 						funk = "001";
-						flag = 4;
+						flag = 5;
 						break;
 
 					default:
@@ -187,8 +190,14 @@ public class AssemblerMain {
 						String rt = stringTokenizer.nextToken();
 
 						switch (rd) {
+							case "rv":
+								rd = "001";
+								break;
 							case "sp":
 								rd = "010";
+								break;
+							case "ra":
+								rd = "011";
 								break;
 							case "t0":
 								rd = "100";
@@ -350,17 +359,27 @@ public class AssemblerMain {
 						immStr = Integer.toBinaryString(Integer
 								.parseInt(immStr));
 						
-						// Formats imm
-						immStr = String.format("%06d", immStr);
-
-						// Turns back into int
-						imm = Integer.parseInt(immStr);
+						int immStrLength = immStr.length();
+						String finalString = "";
+						
+						if(immStrLength < 6) {
+							for(int i = 0; i < 6 - immStrLength; i++) {
+								finalString += "0";
+							}
+						}
+						
+						finalString += immStr;
+						
+						if(finalString.length() > 6) {
+							finalString = finalString.substring(finalString.length() - 6);
+						}
+						System.out.println(finalString);
 
 						
 
 						// Write the instruction in binary form to the file
 						fileWriter.write(opCode + "_" + rs1 + "_" + rt1 + "_"
-								+ immStr + "\n");
+								+ finalString + "\n");
 						break;
 
 					// Branches beq bne
@@ -456,12 +475,23 @@ public class AssemblerMain {
 									+ pc);
 						}
 
+						branchImm -= 1;
 						// Converts the branch immediate into a binary number
 						// takes into account signed numebrs
 						branchLabel = Integer.toBinaryString(branchImm);
 						
-						// Formats imm
-						branchLabel = String.format("%06d", branchLabel);
+						int branchLabelLength = branchLabel.length();
+						String finalBranch = "";
+						
+						for(int i = 0; i < 6 - branchLabelLength; i++) {
+							finalBranch += "0";
+						}
+						
+						finalBranch += branchLabel;
+						
+						if(finalBranch.length() > 6) {
+							finalBranch = finalBranch.substring(finalBranch.length() - 12);
+						}
 
 //						// Only grabs the last 6 bits so the instruction will be
 //						// the
@@ -471,7 +501,7 @@ public class AssemblerMain {
 
 						// Write the instruction in binary form to the file
 						fileWriter.write(opCode + "_" + rs2 + "_" + rt2 + "_"
-								+ branchLabel + "\n");
+								+ finalBranch + "\n");
 						break;
 
 					// j and jal
@@ -485,31 +515,38 @@ public class AssemblerMain {
 						for (String key : labels.keySet()) {
 							if (key.equals(jumpLabel)) {
 								jumpPc = labels.get(key);
-								targetPc = jumpPc - pc;
 								break;
 							}
 						}
 
-						jumpLabel = Integer.toBinaryString(targetPc);
+						jumpLabel = Integer.toBinaryString(jumpPc);
 						System.out.println(jumpLabel);
 						
-						// Formats imm
-						jumpLabel = String.format("%012d", jumpLabel);
+						int jumpLabelLength = jumpLabel.length();
+						String finalJump = "";
 						
-//						jumpLabel = jumpLabel
-//								.substring(jumpLabel.length() - 12);
+						for(int i = 0; i < 12 - jumpLabelLength; i++) {
+							finalJump += "0";
+						}
+						
+						finalJump += jumpLabel;
+						
+						if(finalJump.length() > 12) {
+							finalJump = finalJump.substring(finalJump.length() - 12);
+						}
+						
 
 						// Write the instruction in binary form to the file
-						fileWriter.write(opCode + "_" + jumpLabel + "\n");
+						fileWriter.write(opCode + "_" + finalJump + "\n");
 						break;
 
-					// jr
+					// jr and out
 					case 4:
 
 						// Instruction rs
-						String jumpRs = stringTokenizer.nextToken();
+						String jrOutRs = stringTokenizer.nextToken();
 
-						switch (jumpRs) {
+						switch (jrOutRs) {
 
 							case "0":
 								rs2 = "000";
@@ -542,8 +579,48 @@ public class AssemblerMain {
 						}
 
 						// Writes the instruction in binary form to the file
-						fileWriter.write(opCode + "_" + rs2 + "_" + "000000"
-								+ funk + "\n");
+						fileWriter.write(opCode + "_"+ rs2 + "_" + "000000000" + "\n");
+						break;
+					
+					case 5:
+						
+						// Instruction rt
+						String inRs = stringTokenizer.nextToken();
+						
+						switch(inRs) {
+							
+							case "0":
+								rt2 = "000";
+								break;
+							case "rv":
+								rt2 = "001";
+								break;
+							case "sp":
+								rt2 = "010";
+								break;
+							case "ra":
+								rt2 = "011";
+								break;
+							case "t0":
+								rt2 = "100";
+								break;
+							case "t1":
+								rt2 = "101";
+								break;
+							case "t2":
+								rt2 = "110";
+								break;
+							case "t3":
+								rt2 = "111";
+								break;
+							default:
+								throw new Exception(
+										"Error writing to specified register rt at: "
+												+ pc);
+						}
+						
+						// Writes the instruction in binary form to the file
+						fileWriter.write(opCode + "_"+ "000" + "_" + rt2 + "_" + "000001" + "\n");
 						break;
 				}
 

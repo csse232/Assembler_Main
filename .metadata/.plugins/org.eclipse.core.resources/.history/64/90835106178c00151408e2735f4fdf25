@@ -1,0 +1,665 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.StringTokenizer;
+
+/**
+ * Translates our instructions from an input file into binary and writes it to
+ * an output file.
+ * 
+ * @author Justin Willoughby
+ *
+ */
+public class AssemblerMain {
+
+	/**
+	 * Main Method
+	 * 
+	 * @param args
+	 * @throws Exception
+	 */
+	public static void main(String[] args) throws Exception {
+
+		// Sets the initial pc for the assembler
+		int pc = 0;
+
+		// The name of the file to open.
+		String fileName = "Input.txt";
+
+		// Grabs the labels for the file
+		HashMap<String, Integer> labels = getLabels(fileName);
+
+		// This will reference one line at a time
+		String line = null;
+
+		try {
+
+			// File Reader
+			FileReader fileReader = new FileReader(fileName);
+
+			// Buffered Reader to be wrapped around File Reader
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+			// File Writer
+			FileWriter fileWriter = new FileWriter("Output.txt");
+			
+			// To make sure labels are gotten and being mapped to correct pc
+			for(String key: labels.keySet()) {
+				System.out.println(key + ", " + labels.get(key) + "\n");
+			}
+
+			// Reads lines until there are no more lines to read
+			while ((line = bufferedReader.readLine()) != null) {
+				System.out.println(line);
+
+				// To hold each lines opcode
+				String opCode = "";
+
+				// To hold each lines funk code if applicable
+				String funk = "";
+
+				// Flag to determine the type of instruction
+				int flag = -1;
+
+				StringTokenizer stringTokenizer = new StringTokenizer(line);
+
+				String token = stringTokenizer.nextToken();
+
+				// Sets the opCode, funk code (if applicable)
+				// and also a flag that tells what type of instruction
+				// is being read
+				// 0: Rtype 1:Itype Arithmetic
+				switch (token) {
+
+				// R-Types
+					case "add":
+						opCode = "0000";
+						funk = "000";
+						flag = 0;
+						break;
+					case "sub":
+						opCode = "0000";
+						funk = "001";
+						flag = 0;
+						break;
+					case "or":
+						opCode = "0000";
+						funk = "010";
+						flag = 0;
+						break;
+					case "and":
+						opCode = "0000";
+						funk = "011";
+						flag = 0;
+						break;
+					case "sll":
+						opCode = "0000";
+						funk = "100";
+						flag = 0;
+						break;
+					case "srl":
+						opCode = "0000";
+						funk = "101";
+						flag = 0;
+						break;
+					case "sra":
+						opCode = "0000";
+						funk = "110";
+						flag = 0;
+						break;
+					case "slt":
+						opCode = "0000";
+						funk = "111";
+						flag = 0;
+						break;
+
+					// I-Types
+					case "addi":
+						opCode = "0001";
+						flag = 1;
+						break;
+					case "lw":
+						opCode = "0010";
+						flag = 1;
+						break;
+					case "sw":
+						opCode = "0011";
+						flag = 1;
+						break;
+					case "ori":
+						opCode = "0100";
+						flag = 1;
+						break;
+					case "andi":
+						opCode = "0101";
+						flag = 1;
+						break;
+					case "beq":
+						opCode = "0111";
+						flag = 2;
+						break;
+					case "bne":
+						opCode = "1000";
+						flag = 2;
+						break;
+
+					// J-Types
+					case "j":
+						opCode = "1001";
+						flag = 3;
+						break;
+					case "jal":
+						opCode = "1010";
+						flag = 3;
+						break;
+					case "jr":
+						opCode = "1011";
+						// Does not actually have a funk but is set to
+						// have one to reduce code
+						funk = "000";
+						flag = 4;
+						break;
+
+					// Input/Output
+					case "out":
+						opCode = "1100";
+						funk = "000";
+						flag = 4;
+						break;
+					case "in":
+						opCode = "1100";
+						funk = "001";
+						flag = 4;
+						break;
+
+					default:
+						// We are going to assume a label was set
+				}
+
+				// Converts the remaining part of the
+				// instruction to binary and writes it to the file
+				switch (flag) {
+
+				// R-Type
+					case 0:
+
+						// Instruction rd rs rt
+						String rd = stringTokenizer.nextToken();
+						String rs = stringTokenizer.nextToken();
+						String rt = stringTokenizer.nextToken();
+
+						switch (rd) {
+							case "rv":
+								rd = "001";
+							case "sp":
+								rd = "010";
+								break;
+							case "ra":
+								rd = "011";
+							case "t0":
+								rd = "100";
+								break;
+							case "t1":
+								rd = "101";
+								break;
+							case "t2":
+								rd = "110";
+								break;
+							case "t3":
+								rd = "111";
+								break;
+							default:
+								throw new Exception(
+										"Cannot write to specified register at: "
+												+ pc);
+						}
+
+						switch (rs) {
+							case "0":
+								rs = "000";
+								break;
+							case "rv":
+								rs = "001";
+								break;
+							case "sp":
+								rs = "010";
+								break;
+							case "ra":
+								rs = "011";
+								break;
+							case "t0":
+								rs = "100";
+								break;
+							case "t1":
+								rs = "101";
+								break;
+							case "t2":
+								rs = "110";
+								break;
+							case "t3":
+								rs = "111";
+								break;
+							default:
+								throw new Exception(
+										"Error reading from specified register rs at: "
+												+ pc);
+						}
+
+						switch (rt) {
+							case "0":
+								rt = "000";
+								break;
+							case "rv":
+								rt = "001";
+								break;
+							case "sp":
+								rt = "010";
+								break;
+							case "ra":
+								rt = "011";
+								break;
+							case "t0":
+								rt = "100";
+								break;
+							case "t1":
+								rt = "101";
+								break;
+							case "t2":
+								rt = "110";
+								break;
+							case "t3":
+								rt = "111";
+								break;
+							default:
+								throw new Exception(
+										"Error reading from specified register at: "
+												+ pc);
+						}
+
+						// Write the instruction in binary form to the file
+						fileWriter.write(opCode + "_" + rs + "_" + rt + "_"
+								+ rd + "_" + funk + "\n");
+						break;
+
+					// I-Type Arithmetic + lw/sw
+					case 1:
+
+						// Instruction rt rs imm
+						String rt1 = stringTokenizer.nextToken();
+						String rs1 = stringTokenizer.nextToken();
+						String immStr = stringTokenizer.nextToken();
+						int imm = 0;
+
+						switch (rt1) {
+							case "0":
+								rt1 = "000";
+								break;
+							case "rv":
+								rt1 = "001";
+								break;
+							case "sp":
+								rt1 = "010";
+								break;
+							case "ra":
+								rt1 = "011";
+								break;
+							case "t0":
+								rt1 = "100";
+								break;
+							case "t1":
+								rt1 = "101";
+								break;
+							case "t2":
+								rt1 = "110";
+								break;
+							case "t3":
+								rt1 = "111";
+								break;
+							default:
+								throw new Exception(
+										"Error reading from specified register at: "
+												+ pc);
+						}
+
+						switch (rs1) {
+							case "0":
+								rs1 = "000";
+								break;
+							case "rv":
+								rs1 = "001";
+								break;
+							case "sp":
+								rs1 = "010";
+								break;
+							case "ra":
+								rs1 = "011";
+								break;
+							case "t0":
+								rs1 = "100";
+								break;
+							case "t1":
+								rs1 = "101";
+								break;
+							case "t2":
+								rs1 = "110";
+								break;
+							case "t3":
+								rs1 = "111";
+								break;
+							default:
+								throw new Exception(
+										"Error reading from specified register rs at: "
+												+ pc);
+						}
+
+						// Converts imm into binary string
+						immStr = Integer.toBinaryString(Integer
+								.parseInt(immStr));
+						
+						int immStrLength = immStr.length();
+						String finalString = "";
+						
+						for(int i = 0; i < 6 - immStrLength; i++) {
+							finalString += "0";
+						}
+						
+						finalString += immStr;
+						
+						if(finalString.length() > 6) {
+							finalString = finalString.substring(finalString.length() - 6);
+						}
+
+						// Turns back into int
+						imm = Integer.parseInt(finalString);
+
+						
+
+						// Write the instruction in binary form to the file
+						fileWriter.write(opCode + "_" + rs1 + "_" + rt1 + "_"
+								+ immStr + "\n");
+						break;
+
+					// Branches beq bne
+					case 2:
+
+						// Instruction rt rs imm
+						String rt2 = stringTokenizer.nextToken();
+						String rs2 = stringTokenizer.nextToken();
+						String branchLabel = stringTokenizer.nextToken();
+
+						switch (rt2) {
+							case "0":
+								rt2 = "000";
+								break;
+							case "rv":
+								rt2 = "001";
+								break;
+							case "sp":
+								rt2 = "010";
+								break;
+							case "ra":
+								rt2 = "011";
+								break;
+							case "t0":
+								rt2 = "100";
+								break;
+							case "t1":
+								rt2 = "101";
+								break;
+							case "t2":
+								rt2 = "110";
+								break;
+							case "t3":
+								rt2 = "111";
+								break;
+							default:
+								throw new Exception(
+										"Error reading from specified register at: "
+												+ pc);
+						}
+
+						switch (rs2) {
+							case "0":
+								rs2 = "000";
+								break;
+							case "rv":
+								rs2 = "001";
+								break;
+							case "sp":
+								rs2 = "010";
+								break;
+							case "ra":
+								rs2 = "011";
+								break;
+							case "t0":
+								rs2 = "100";
+								break;
+							case "t1":
+								rs2 = "101";
+								break;
+							case "t2":
+								rs2 = "110";
+								break;
+							case "t3":
+								rs2 = "111";
+								break;
+							default:
+								throw new Exception(
+										"Error reading from specified register rs at: "
+												+ pc);
+						}
+
+						// Initialized as the pc of our label instruction
+						int labelPc = -1;
+
+						// Initialized as the branch immediate
+						// # of instructions between our pc and the label
+						int branchImm = 0;
+
+						// Cycles through the hashmap of labels, finds it and
+						// grabs the labels's pc
+						for (String key : labels.keySet()) {
+							if (key.equals(branchLabel)) {
+								labelPc = labels.get(key);
+								branchImm = labelPc - pc;
+								break;
+							}
+						}
+
+						// Makes sure the label exists
+						if (labelPc == -1) {
+							throw new Exception("Branch label not found at: "
+									+ pc);
+						}
+
+						// Converts the branch immediate into a binary number
+						// takes into account signed numebrs
+						branchLabel = Integer.toBinaryString(branchImm);
+						
+						// Formats imm
+						branchLabel = String.format("%06d", branchLabel);
+
+//						// Only grabs the last 6 bits so the instruction will be
+//						// the
+//						// correct size
+//						branchLabel = branchLabel.substring(branchLabel
+//								.length() - 6);
+
+						// Write the instruction in binary form to the file
+						fileWriter.write(opCode + "_" + rs2 + "_" + rt2 + "_"
+								+ branchLabel + "\n");
+						break;
+
+					// j and jal
+					case 3:
+
+						// Instruction imm
+						String jumpLabel = stringTokenizer.nextToken();
+
+						int jumpPc = 0;
+						int targetPc = 0;
+						for (String key : labels.keySet()) {
+							if (key.equals(jumpLabel)) {
+								jumpPc = labels.get(key);
+								break;
+							}
+						}
+
+						jumpLabel = Integer.toBinaryString(jumpPc);
+						System.out.println(jumpLabel);
+						
+						int jumpLabelLength = jumpLabel.length();
+						String finalJump = "";
+						
+						for(int i = 0; i < 12 - jumpLabelLength; i++) {
+							finalJump += "0";
+						}
+						
+						finalJump += jumpLabelLength;
+						
+						if(finalJump.length() > 12) {
+							finalJump = finalJump.substring(finalJump.length() - 12);
+						}
+						
+//						jumpLabel = jumpLabel
+//								.substring(jumpLabel.length() - 12);
+
+						// Write the instruction in binary form to the file
+						fileWriter.write(opCode + "_" + jumpLabel + "\n");
+						break;
+
+					// jr
+					case 4:
+
+						// Instruction rs
+						String jumpRs = stringTokenizer.nextToken();
+
+						switch (jumpRs) {
+
+							case "0":
+								rs2 = "000";
+								break;
+							case "rv":
+								rs2 = "001";
+								break;
+							case "sp":
+								rs2 = "010";
+								break;
+							case "ra":
+								rs2 = "011";
+								break;
+							case "t0":
+								rs2 = "100";
+								break;
+							case "t1":
+								rs2 = "101";
+								break;
+							case "t2":
+								rs2 = "110";
+								break;
+							case "t3":
+								rs2 = "111";
+								break;
+							default:
+								throw new Exception(
+										"Error reading from specified register rs at: "
+												+ pc);
+						}
+
+						// Writes the instruction in binary form to the file
+						fileWriter.write(opCode + "_" + rs2 + "_" + "000000"
+								+ funk + "\n");
+						break;
+				}
+
+				// If the line is an instruction add to the pc
+				if (flag != -1) {
+					pc += 1;
+				}
+			}
+
+			// Close File Writer
+			fileWriter.close();
+
+			// Close Buffered Reader
+			bufferedReader.close();
+		} catch (FileNotFoundException ex) {
+			System.out.println("Unable to open file '" + fileName + "'");
+		} catch (IOException ex) {
+			System.out.println("Error reading file '" + fileName + "'");
+		}
+	}
+
+	/**
+	 * Loops through the file and populates a list with labels and their pc
+	 * 
+	 * @return HashMap<String, Integer> labels
+	 */
+	public static HashMap<String, Integer> getLabels(String fileName) {
+
+		// This will reference one line at a time
+		String line = null;
+
+		// Initialize the list to put labels in
+		HashMap<String, Integer> labels = new HashMap<String, Integer>();
+
+		// Initializes the pc
+		int pc = 0;
+
+		try {
+			// FileReader reads text files in the default encoding.
+			FileReader fileReader = new FileReader(fileName);
+
+			// Always wrap FileReader in BufferedReader.
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+			while ((line = bufferedReader.readLine()) != null) {
+
+				// Breaks the line up into a list
+				StringTokenizer stringTokenizer = new StringTokenizer(line);
+
+				// Gets the first token (word) in the list
+				String token = stringTokenizer.nextToken();
+
+				// Determines if the line is a label
+				// To be a label:
+				// 1. Must be the only word in the line.  Token count == 0
+				// 2. Must have a semi colon at the end of the line. 
+				// 3. Must not be any of the actual instructions
+				if (stringTokenizer.countTokens() == 0
+						&& token.substring(token.length() - 1).equals(":")
+						&& (token != "add" && token != "addi" && token != "or"
+								&& token != "sub" && token != "and"
+								&& token != "lw" && token != "sw"
+								&& token != "ori" && token != "andi"
+								&& token != "sll" && token != "srl"
+								&& token != "sra" && token != "slt"
+								&& token != "beq" && token != "bne"
+								&& token != "j" && token != "jal"
+								&& token != "jr" && token != "out" && token != "in")) {
+
+					// Passed the test so add it to the label hashmap and record its pc
+					labels.put(token.substring(0, token.length() - 1), pc);
+				} else {
+					// If its not a label add one to the pc
+					pc += 1;
+				}
+			}
+
+			// Close Buffered Reader
+			bufferedReader.close();
+			
+		} catch (FileNotFoundException ex) {
+			// If for some reason the file is not found
+			System.out.println("Unable to open file '" + fileName + "'");
+		} catch (IOException ex) {
+			// Other problems reading the file
+			System.out.println("Error reading file '" + fileName + "'");
+		}
+		System.out.println("\n");
+		return labels;
+	}
+}
