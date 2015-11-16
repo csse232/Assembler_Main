@@ -4,17 +4,26 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 
 /**
  * Translates our instructions from an input file into binary and writes it to
  * an output file.
  * 
- * @author Justin Willoughby
+ * @author Justin Willoughby modified by Marc Schmitt
  *
  */
 public class AssemblerMain {
-
+	
+	
+	public static String getInput(String message){
+		String in;
+		System.out.println(message);
+		Scanner input = new Scanner(System.in);
+		in = input.next();
+		return in;
+	}
 	/**
 	 * Main Method
 	 * 
@@ -22,12 +31,15 @@ public class AssemblerMain {
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
-
+		
+		
 		// Sets the initial pc for the assembler
 		int pc = 0;
 
 		// The name of the file to open.
-		String fileName = "Input.txt";
+		String fileName = getInput("Please type the name of the input file.");
+		// The name of the file to output t.o
+		String outputFile = getInput("Please type the name of the output file.");
 
 		// Grabs the labels for the file
 		HashMap<String, Integer> labels = getLabels(fileName);
@@ -44,16 +56,15 @@ public class AssemblerMain {
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 
 			// File Writer
-			FileWriter fileWriter = new FileWriter("Output.txt");
+			FileWriter fileWriter = new FileWriter(outputFile);
 			
 			// To make sure labels are gotten and being mapped to correct pc
-			for(String key: labels.keySet()) {
-				System.out.println(key + ", " + labels.get(key) + "\n");
-			}
+//			for(String key: labels.keySet()) {
+//				System.out.println(key + ", " + labels.get(key) + "\n");
+//			}
 
 			// Reads lines until there are no more lines to read
 			while ((line = bufferedReader.readLine()) != null) {
-				System.out.println(line);
 
 				// To hold each lines opcode
 				String opCode = "";
@@ -373,7 +384,7 @@ public class AssemblerMain {
 						if(finalString.length() > 6) {
 							finalString = finalString.substring(finalString.length() - 6);
 						}
-						System.out.println(finalString);
+//						System.out.println(finalString);
 
 						
 
@@ -520,7 +531,7 @@ public class AssemblerMain {
 						}
 
 						jumpLabel = Integer.toBinaryString(jumpPc);
-						System.out.println(jumpLabel);
+//						System.out.println(jumpLabel);
 						
 						int jumpLabelLength = jumpLabel.length();
 						String finalJump = "";
@@ -640,6 +651,8 @@ public class AssemblerMain {
 		} catch (IOException ex) {
 			System.out.println("Error reading file '" + fileName + "'");
 		}
+		
+		System.out.println("Done.");
 	}
 
 	/**
@@ -708,7 +721,7 @@ public class AssemblerMain {
 			// Other problems reading the file
 			System.out.println("Error reading file '" + fileName + "'");
 		}
-		System.out.println("\n");
+//		System.out.println("\n");
 		return labels;
 	}
 }
